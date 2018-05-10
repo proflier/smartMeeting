@@ -1,0 +1,121 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+	<form id="mainForm" class="form-horizontal" role="form">
+	<input type="hidden" name="id" value="${attendReg.id }">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">
+					<c:choose>
+						<c:when test="${action eq 'create' }">
+							新增
+						</c:when>
+						<c:when test="${action eq 'update' }">
+							修改
+						</c:when>
+						<c:when test="${action eq 'detail' }">
+							查看
+						</c:when>
+					</c:choose>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="type" class="col-sm-2 control-label">信息类别</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="type" placeholder="信息类别" name="type" value="${attendReg.type }">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="city" class="col-sm-2 control-label">参会城市</label>
+					<div class="col-sm-10">
+						<select class="form-control" id="city" name="city" >
+							<option value="">请选择</option>
+                            <option value="北京" <c:if test="${attendReg.city eq '北京' }">selected="selected"</c:if>>北京</option>
+                            <option value="上海" <c:if test="${attendReg.city eq '上海' }">selected="selected"</c:if>>上海</option>
+                            <option value="苏州" <c:if test="${attendReg.city eq '苏州' }">selected="selected"</c:if>>苏州</option>
+                            <option value="杭州" <c:if test="${attendReg.city eq '杭州' }">selected="selected"</c:if>>杭州</option>
+                            <option value="广州" <c:if test="${attendReg.city eq '广州' }">selected="selected"</c:if>>广州</option>
+                            <option value="成都" <c:if test="${attendReg.city eq '成都' }">selected="selected"</c:if>>成都</option>
+                        </select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="company" class="col-sm-2 control-label">公司名称</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="company" placeholder="公司名称" name="company" value="${attendReg.company }">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="realName" class="col-sm-2 control-label">姓名</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="realName" placeholder="姓名" name="realName" value="${attendReg.realName }">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="phone" class="col-sm-2 control-label">手机</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="phone" placeholder="手机" name="phone" value="${attendReg.phone }">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="email" class="col-sm-2 control-label">电子邮箱</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="email" placeholder="电子邮箱" name="email" value="${attendReg.email }">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="position" class="col-sm-2 control-label">职位</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="position" placeholder="职位" name="position" value="${attendReg.position }">
+					</div>
+				</div>
+				<c:if test="${action eq 'detail' }">
+					<div class="form-group">
+						<label for="createDate" class="col-sm-2 control-label">录入时间</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" value="<fmt:formatDate value='${attendReg.createDate }' pattern='yyyy-MM-dd HH:mm:ss'/>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="updateDate" class="col-sm-2 control-label">修改时间</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" value="<fmt:formatDate value='${attendReg.updateDate }' pattern='yyyy-MM-dd HH:mm:ss'/>">
+						</div>
+					</div>
+				</c:if>
+			</div>
+			<div class="modal-footer">
+				<c:if test="${action ne 'detail' }">
+					<button type="button" class="btn btn-primary" id="submitButton"
+						data-loading-text="Loading..."
+						data-container="body" data-toggle="popover" data-placement="right"
+						data-content="保存成功">提交保存</button>
+				</c:if>
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div>
+	</div>
+	</form>
+<script type="text/javascript">
+	$(function(){
+		$("#submitButton").click(function() {
+			$(this).button('loading');
+			$.post("${ctx }/attendReg/save/${action}", $("#mainForm").serialize(), function(data) {
+				if (data == "success") {
+					cx();
+					$("#submitButton").popover('show');
+					setTimeout(function(){
+						$("#submitButton").popover('hide');
+						//if ('${action}' == 'create') {
+							$('#myModal').modal('hide');
+						//}
+						$("#submitButton").button('reset');
+					}, 1000);
+				}
+			});
+		});
+	});
+</script>

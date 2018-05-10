@@ -1,0 +1,25 @@
+package com.cnbmtech.system.utils;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.cnbmtech.base.utils.SpringContextUtils;
+import com.cnbmtech.system.entity.Dictionary;
+import com.cnbmtech.system.service.DictionaryService;
+
+/**
+ * 自定义标签工具类
+ */
+@Component
+public class MyTagUtil {
+	
+	@Autowired
+	private static DictionaryService dictionaryService = SpringContextUtils.getBean(DictionaryService.class);
+	
+	public static List<Dictionary> findDictByPcode(String pcode) {
+		return dictionaryService.findByPcodeCacheable(pcode);
+	}
+	
+}

@@ -1,0 +1,172 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ include file="/base.jsp"%>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>用户注册</title>
+
+<link rel="stylesheet" href="${ctx}/static/others/css/custom.css" media="screen">
+<link rel="stylesheet" href="${ctx}/static/others/css/form-elements.css">
+<link rel="stylesheet" href="${ctx}/static/others/css/style.css">
+
+</head>
+
+<body background="${ctx}/static/images/con_add.jpg">
+	<div class="inner-bg">
+		<div class="container">
+			<form id="mainForm" class="form-horizontal" role="form">
+				<div class="form-top">
+					<div class="form-top-left">
+						<h3>请填写您的注册信息</h3>
+					</div>
+					<div class="form-top-right">
+						<i class="glyphicon glyphicon-user"></i>
+					</div>
+				</div>
+				<div class="form-bottom">
+				
+					<input type="hidden" name="type" value="${template.title }">
+			
+					<c:if test="${template.city eq 1 }">
+					<div class="form-group">
+						<label for="city" class="col-sm-2 control-label">参会城市</label>
+						<div class="col-sm-10">
+							<select class="form-control" id="city" name="city">
+								<option value="北京">北京</option>
+								<option value="上海">上海</option>
+								<option value="苏州">苏州</option>
+								<option value="杭州">杭州</option>
+								<option value="广州">广州</option>
+								<option value="成都">成都</option>
+							</select>
+						</div>
+					</div>
+					</c:if>
+					<c:if test="${template.interest eq 1 }">				
+					<div class="form-group">
+						<label for="interest" class="col-sm-2 control-label sr-only">兴趣:</label>
+						<div class="col-sm-10">
+							您感兴趣的内容:
+							<input type="checkbox" name="interest" value="Office365"> Office365
+							<input type="checkbox" name="interest" value="Azure"> Azure
+						</div>
+					</div>
+					</c:if>
+					<div class="form-group">
+						<label for="company" class="col-sm-2 control-label">公司名称</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="company" placeholder="公司名称" name="company">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="realName" class="col-sm-2 control-label">姓名</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="realName" placeholder="姓名" name="realName">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="phone" class="col-sm-2 control-label">手机</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="phone" placeholder="手机" name="phone">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="email" class="col-sm-2 control-label">电子邮箱</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="email" placeholder="电子邮箱" name="email">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="position" class="col-sm-2 control-label">职位</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="position" placeholder="职位" name="position">
+						</div>
+					</div>
+					<div align="center">
+						<button class="btn" type="button" id="submitButton">注册</button>
+			   		</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<script type="text/javascript">
+	$(function(){
+		$('#mainForm').bootstrapValidator({
+			message: '这个值无效',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			fields: {
+				company: {
+					validators: {
+						notEmpty: {
+							message: '公司名称不能为空'
+						}
+					}
+				},
+				realName: {
+					message: '姓名无效',
+	                validators: {
+	                    notEmpty: {
+	                        message: '姓名是必需的，不能是空的'
+	                    },
+	                    stringLength: {
+	                        min: 2,
+	                        max: 30,
+	                        message: '姓名必须大于等于2，长度小于30'
+	                    }
+	                }
+				},
+				phone: {
+	                validators: {
+	                	notEmpty: {
+							message: '电话号码不能为空'
+						},
+	                    phone: {
+	                        message: '输入不是有效的电话号码',
+	                        country: 'CN'
+	                    }
+	                }
+	            },
+	            email: {
+	                validators: {
+	                    emailAddress: {
+	                        message: '输入不是一个有效的电子邮件地址'
+	                    }
+	                }
+	            },
+	            position: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '职位不能为空'
+	                    }
+	                }
+	            }
+			}
+		});
+		
+		$("#submitButton").click(function() {
+			/*手动验证表单，当是普通按钮时。*/
+			var bootstrapValidator = $("#mainForm").data('bootstrapValidator');
+			bootstrapValidator.validate();
+			if (!bootstrapValidator.isValid()) {
+				return false;
+			}
+			$.post("${ctx }/template/con_add_save", $("#mainForm").serialize(), function(data) {
+				if (data == "success") {
+					alert('注册成功!');
+					window.location.href = 'http://mp.weixin.qq.com/s/Vn8zWepeWcd5Xz5t66LE9Q';
+				}
+			});
+		});
+	});
+	</script>
+</body>
+</html>

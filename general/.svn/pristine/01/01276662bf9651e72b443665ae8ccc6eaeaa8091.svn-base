@@ -1,0 +1,22 @@
+package com.cnbmtech.general.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cnbmtech.base.dao.BaseDao;
+import com.cnbmtech.base.service.BaseService;
+import com.cnbmtech.general.dao.TemplateDao;
+import com.cnbmtech.general.entity.Template;
+
+@Service
+public class TemplateService extends BaseService<Template, Integer>{
+	
+	@Autowired
+	private TemplateDao templateDao;
+	
+	@Override
+	public BaseDao<Template, Integer> getEntityDao() {
+		return templateDao;
+	}
+	
+}

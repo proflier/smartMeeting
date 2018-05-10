@@ -1,0 +1,109 @@
+package com.cnbmtech.general.controller;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.cnbmtech.base.controller.BaseController;
+import com.cnbmtech.base.utils.ChartGraphicsUtils;
+import com.cnbmtech.base.utils.QrCodeCreateUtil;
+import com.cnbmtech.general.entity.BriefInfor;
+import com.cnbmtech.general.entity.StaffInfor;
+import com.cnbmtech.general.service.BriefInforService;
+import com.cnbmtech.general.service.StaffInforService;
+import com.google.zxing.WriterException;
+
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+
+@Controller
+@RequestMapping(value = "vistor")
+public class VistorController extends BaseController{
+	
+	
+	@Autowired
+	private StaffInforService staffInforService;
+	
+	@Autowired
+	private BriefInforService briefInforService;
+	
+	
+	@RequestMapping(value = "toVisitor/{id}")
+    public String toUpdate( @PathVariable("id") Integer id, Model model) {
+		StaffInfor staffInfor = staffInforService.get(id);
+		BriefInfor briefInfor = briefInforService.get(staffInfor.getRelationBrief());
+		model.addAttribute("staffInfor", staffInfor);
+		model.addAttribute("briefInfor", briefInfor);
+		return "staffInfor/share";
+	}
+	
+	/**
+	 * 返回通讯录二维码
+	 * @param id
+	 * @return
+	 * @throws WriterException
+	 * @throws IOException
+	 */
+	@RequestMapping("toUserAdress/{id}")
+    public ResponseEntity<byte[]> toUserAdress(@PathVariable("id") Integer id)
+            throws WriterException, IOException{
+        return QrCodeCreateUtil.getResponseEntity(formateVCF(id), 150, 150, "png");
+    }
+    
+    /**
+	 * 返回个人介绍二维码
+	 * @param id
+	 * @return
+	 * @throws WriterException
+	 * @throws IOException
+	 */
+	@RequestMapping("toUserSummer/{id}")
+    public ResponseEntity<byte[]> toUserSummer(@PathVariable("id") Integer id)
+            throws WriterException, IOException{
+    	String url = "http://192.168.99.65:8080/vistor/toVisitor/"+id;
+        return QrCodeCreateUtil.getResponseEntity(url, 150, 150, "png");
+    }
+    
+    /**
+	 * 返回通讯录二维码
+	 * @param id
+	 * @return
+	 * @throws WriterException
+	 * @throws IOException
+     * @throws BadHanyuPinyinOutputFormatCombination 
+	 */
+	@RequestMapping("toUserCard/{id}")
+    public ResponseEntity<byte[]> toUserCard(@PathVariable("id") Integer id,HttpServletRequest request)
+            throws WriterException, IOException, BadHanyuPinyinOutputFormatCombination{
+    	StaffInfor staffInfor = staffInforService.get(id);
+        return ChartGraphicsUtils.graphicsGeneration(staffInfor,request);
+    }
+    
+    
+    
+    public String formateVCF(Integer id){
+    	String returnValue ="";
+    	StaffInfor staffInfor = staffInforService.get(id);
+    	returnValue = "BEGIN:VCARD\n" +
+				"VERSION:3.0\n" +
+				"N:"+staffInfor.getRealName()+"\n" +
+				"EMAIL:"+staffInfor.getEmail()+"\n" +
+				"TEL:"+staffInfor.getTelphone()+"\n"+
+				"TEL;CELL:"+staffInfor.getMobile()+"\n" +
+				"ADR:"+staffInfor.getAddress()+"\n" +
+				"ORG:"+staffInfor.getDepartment()+"\n" +
+				"TITLE:"+staffInfor.getTitle()+"\n"+
+				"URL:"+staffInfor.getWebsite()+"\n" +
+				"NOTE:"+briefInforService.get(staffInfor.getRelationBrief()).getTitle()+"\n" +
+				"END:VCARD";
+    	return returnValue;
+    }
+	    
+	    
+}

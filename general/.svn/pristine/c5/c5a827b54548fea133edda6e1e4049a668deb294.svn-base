@@ -1,0 +1,67 @@
+package com.cnbmtech.general.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import com.cnbmtech.base.entity.BaseEntity;
+
+/**
+ * 会议模板
+ */
+@Entity
+@Table(name = "template")
+@DynamicUpdate @DynamicInsert
+public class Template extends BaseEntity implements Serializable {
+
+	private static final long serialVersionUID = -1819007666810602059L;
+	
+	/**
+	 * 标题
+	 */
+	@Column
+	private String title;
+
+	/**
+	 * 感兴趣
+	 */
+	@Column
+	private int interest;
+	
+	/**
+	 * 参会城市
+	 */
+	@Column
+	private int city;
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public int getInterest() {
+		return interest;
+	}
+
+	public void setInterest(int interest) {
+		this.interest = interest;
+	}
+
+	public int getCity() {
+		return city;
+	}
+
+	public void setCity(int city) {
+		this.city = city;
+	}
+	
+
+}

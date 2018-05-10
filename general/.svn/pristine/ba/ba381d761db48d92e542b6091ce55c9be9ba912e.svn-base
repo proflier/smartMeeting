@@ -1,0 +1,115 @@
+package com.cnbmtech.system.service;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
+
+import com.cnbmtech.base.dao.BaseDao;
+import com.cnbmtech.base.service.BaseService;
+import com.cnbmtech.base.utils.bootstrap.TreeView;
+import com.cnbmtech.system.dao.PermissionDao;
+import com.cnbmtech.system.entity.Permission;
+
+@Service
+public class PermissionService extends BaseService<Permission, Integer> {
+
+	@Autowired
+	private PermissionDao permissionDao;
+
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private RoleService roleService;
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	@Override
+	public BaseDao<Permission, Integer> getEntityDao() {
+		return permissionDao;
+	}
+	
+	/**
+	 * 构造菜单树
+	 */
+	public List<TreeView> getMenu(Integer userId) {
+		List<Permission> permissions = userService.userPermissionCacheable(userId);
+		// 以parentId为key构造treeViewMap
+		Map<Integer, List<TreeView>> treeViewMap = new TreeMap<Integer, List<TreeView>>();
+		for (Permission permission : permissions) {
+			if (!permission.getType().equals("M")) {
+				continue;
+			}
+			TreeView treeView = new TreeView();
+			treeView.setId(permission.getId());
+			treeView.setText(permission.getName());
+			treeView.setIcon(permission.getIcon());
+			if (StringUtils.isNotBlank(permission.getUrl())) {
+				treeView.setHref(permission.getUrl());
+			}
+			Integer parentId = permission.getParentId() == null ? 0 : permission.getParentId();
+			if (treeViewMap.get(parentId) == null) {
+				List<TreeView> treeViewList = new ArrayList<TreeView>();
+				treeViewList.add(treeView);
+				treeViewMap.put(parentId, treeViewList);
+			} else {
+				treeViewMap.get(parentId).add(treeView);
+			}
+		}
+
+		List<TreeView> rootTreeViews = roleService.getTreeViewFromMap(treeViewMap);
+		return rootTreeViews;
+	}
+	
+	/**
+	 * 获取所有有效权限
+	 */
+	public List<Permission> getAll() {
+		String sql = "SELECT * FROM sys_permission WHERE status = 1 ORDER BY sort";
+		return jdbcTemplate.query(sql, new RowMapper<Permission>(){
+
+			@Override
+			public Permission mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Permission permission = new Permission();
+				permission.setId(rs.getInt("id"));
+				permission.setParentId(rs.getInt("parent_id"));
+				permission.setLevel(rs.getInt("level"));
+				permission.setName(rs.getString("name"));
+				permission.setUrl(rs.getString("url"));
+				permission.setIcon(rs.getString("icon"));
+				permission.setType(rs.getString("type"));
+				return permission;
+			}
+			
+		});
+	}
+	
+	/**
+	 * Cacheable：当重复使用相同参数调用方法的时候，方法本身不会被调用执行，即方法本身被略过了，取而代之的是方法的结果直接从缓存中找到并返回了。
+	 */
+	@Cacheable(value = "userPermission", key = "'all'")
+	public List<Permission> allCacheable() {
+		return getAll();
+	}
+	
+	/**
+	 * CachePut：这个注释可以确保方法被执行，同时方法的返回值也被记录到缓存中。
+	 */
+	@CachePut(value = "userPermission", key = "'all'")
+	public List<Permission> allCachePut() {
+		return getAll();
+	}
+	
+}

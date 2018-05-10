@@ -1,0 +1,22 @@
+package com.cnbmtech.system.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cnbmtech.base.dao.BaseDao;
+import com.cnbmtech.base.service.BaseService;
+import com.cnbmtech.system.dao.UserDao;
+import com.cnbmtech.system.entity.User;
+
+@Service
+public class UserService extends BaseService<User, Integer>{
+	
+	@Autowired
+	private UserDao userDao;
+	
+	@Override
+	public BaseDao<User, Integer> getEntityDao() {
+		return userDao;
+	}
+	
+}

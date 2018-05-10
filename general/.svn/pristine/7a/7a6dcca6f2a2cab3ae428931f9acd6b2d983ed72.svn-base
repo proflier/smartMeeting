@@ -1,0 +1,33 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ include file="/base.jsp"%>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="/static/images/favicon.ico">
+
+<title>中建材信息技术股份有限公司</title>
+
+</head>
+
+<body>
+
+	<div class="container">
+	
+		对不起，您没有操作权限！
+
+	</div>
+	<!-- /container -->
+</body>
+<script type="text/javascript">
+$(function(){
+	
+});
+</script>
+</html>

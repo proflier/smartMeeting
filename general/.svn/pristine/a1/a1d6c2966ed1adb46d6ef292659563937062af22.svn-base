@@ -1,0 +1,11 @@
+package com.cnbmtech.general.dao;
+
+import org.springframework.stereotype.Repository;
+
+import com.cnbmtech.base.dao.BaseDao;
+import com.cnbmtech.general.entity.AttendReg;
+
+@Repository
+public interface AttendRegDao extends BaseDao<AttendReg, Integer> {
+	
+}

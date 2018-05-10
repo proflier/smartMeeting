@@ -1,0 +1,104 @@
+package com.cnbmtech.general.controller;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnbmtech.base.controller.BaseController;
+import com.cnbmtech.base.utils.PropertyFilter;
+import com.cnbmtech.general.entity.BriefInfor;
+import com.cnbmtech.general.entity.StaffInfor;
+import com.cnbmtech.general.service.BriefInforService;
+import com.cnbmtech.general.service.StaffInforService;
+
+@Controller
+@RequestMapping(value = "staffInfor")
+public class StaffInforController extends BaseController{
+	
+	private static final Logger logger = LoggerFactory.getLogger(StaffInforController.class);
+	
+	@Autowired
+	private StaffInforService staffInforService;
+	
+	@Autowired
+	private BriefInforService briefInforService;
+	
+	@RequestMapping(value = "list")
+	public String list(HttpServletRequest request, Model model) {
+		return "staffInfor/staffInforList";
+	}
+	
+	@RequestMapping(value = "jsonDate")
+	@ResponseBody
+	public Map<String, Object> jsonDate(HttpServletRequest request, Model model) {
+		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		Page<StaffInfor> page = staffInforService.findPage(request, filters);
+		return getTableData(page);
+	}
+	
+	@RequestMapping(value = "toCreate")
+	public String toUpdate(Model model) {
+		model.addAttribute("action", "create");
+		model.addAttribute("staffInfor", new StaffInfor());
+		List<BriefInfor> briefInforList = briefInforService.getAll();
+		model.addAttribute("briefInforList", briefInforList);
+		return "staffInfor/staffInforForm";
+	}
+	
+	@RequestMapping(value = "toUpdate/{action}/{id}")
+    public String toUpdate(@PathVariable("action") String action, @PathVariable("id") Integer id, Model model) {
+		StaffInfor staffInfor = staffInforService.get(id);
+		List<BriefInfor> briefInforList = briefInforService.getAll();
+		model.addAttribute("briefInforList", briefInforList);
+		model.addAttribute("staffInfor", staffInfor);
+		return "staffInfor/staffInforForm";
+	}
+	
+	@RequestMapping(value = "save/{action}")
+	@ResponseBody
+	public String update(@PathVariable("action") String action, @ModelAttribute("staffInfor") @RequestBody StaffInfor staffInfor) {
+		try{
+			Date currentDate = new Date();
+			if (action.equals("create")) {
+				staffInfor.setCreateDate(currentDate);
+			} else {
+				staffInfor.setUpdateDate(currentDate);
+			}
+			staffInforService.save(staffInfor);
+		}catch(Exception ex){
+			logger.error("save staffInfor()--error", ex);
+			return "error";
+		}
+		return "success";
+	}
+	
+	@ModelAttribute
+	public void getObject(@RequestParam(value = "id", defaultValue = "-1") Integer id, Model model) {
+		if (id != -1) {
+			model.addAttribute("staffInfor", staffInforService.get(id));
+		}
+	}
+	
+	@RequestMapping(value = "delete/{id}")
+	@ResponseBody
+	public String delete(@PathVariable("id") Integer id) {
+		staffInforService.delete(id);
+		return "success";
+	}
+	
+}
