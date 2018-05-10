@@ -8,7 +8,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
-@EnableCaching //开启缓存功能
+@EnableCaching //开启缓存功能2018.3.25
 public class Application extends SpringBootServletInitializer implements CommandLineRunner {
 	
 	//入口
